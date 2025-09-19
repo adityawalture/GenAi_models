@@ -16,14 +16,17 @@ class Website:
     
     def __init__(self, url):
         self.url = url
-        response = requests.get(url)
-        self.body = response.content
-        soup = BeautifulSoup(self.body, 'html.parser')
-        self.title = soup.title.string if soup.title else "No title found"
-        for irrelevant in soup.body(["script","style", "img", "input"]):
-            irrelevant.decompose()
-        self.text = soup.body.get_text(separator="\n", strip=True)
-        
+        try:
+            response = requests.get(url)
+            self.body = response.content
+            soup = BeautifulSoup(self.body, 'html.parser')
+            self.title = soup.title.string if soup.title else "No title found"
+            for irrelevant in soup.body(["script","style", "img", "input"]):
+                irrelevant.decompose()
+            self.text = soup.body.get_text(separator="\n", strip=True)
+        except requests.exceptions.RequestException as e:
+            self.title = "Error fetching webpage"
+            self.text = f"Could not fetch{e}"
     def get_content(self):
         return f"Webpage Title:\n{self.title}\nWebpage Content:\n{self.text}\n\n"
     
@@ -76,6 +79,8 @@ view = gr.Interface(
         gr.Textbox(label="Landing page URL including http:// or https://"),
     ],
     outputs=[gr.Markdown(label="Brochure")],
+    title="Company Brochure Generator",
+    description="Enter a company name and the URL of their landing page to generate a brochure.",
     flagging_mode="never"
 )
 view.launch()
