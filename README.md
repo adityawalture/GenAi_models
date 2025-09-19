@@ -1,0 +1,1 @@
+https://huggingface.co/spaces/adiwalture/brochure_model
